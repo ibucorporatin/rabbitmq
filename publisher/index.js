@@ -133,14 +133,14 @@ console.log("requesting fib",number)
     channel.consume(
       q.queue,
       (message) => {
-        if (message.content) {
-          console.log(
-            "routing key :",
-            message.fields.routingKey,
-            "content : ",
-            message.content.toString()
-          );
-        }
+     const fibNum=parseInt(message.content.toString())
+     if(message.properties.correlationId==id){
+          console.log(`the fibNumber of ${number} is ${fibNum}`)
+          setTimeout(()=>{
+            channel.close();
+            process.close()
+          },500)
+     }
       },
       { noAck: true }
     );

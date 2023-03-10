@@ -229,20 +229,23 @@ async function createChannel() {
 
     const q = await channel.assertQueue(queueName, { exclusive: true });
     channel.prefetch(1)
-console.log("requesting fib",number)
-  // channel.sendToQueue(queueName,Buffer.from(number.toString()),{
-  //   replyTo:q.queue,
 
-  // })
+
     channel.consume(
-      q.queue,
+    queueName ,
       (message) => {
         const number=parseInt(message.content.toString())
         console.log("fib number",number)
         const fib=fibonacci(number)
+        const q=message.properties.replyTo;
+        channel.sendToQueue(q,Buffer.from(fib.toString()),{
+          correlationId:message.properties.correlationId
+        });
+        channel.ack(message)
 
       },
-      { noAck: true }
+      
+      { noAck: false }
     );
 
     console.log("Channel created successfully");
